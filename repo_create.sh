@@ -11,7 +11,7 @@ read DESCRIPTION
 
 
 # step 2:  the local project folder path
-echo "what is the absolute path to your local project directory?"
+echo "what is the absolute path to your local project directory this should include the repo name?"
 read PROJECT_PATH
 
 echo "What is your github username?"
@@ -23,28 +23,31 @@ read USERNAME
    exit 1
  fi
 
+ if [[ -z $GITHUB_ACCESS_TOKEN ]]; then
+     echo "You need to setup your Github Access Token variable from the browser."
+     echo "For instructions go to: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-fine-grained-personal-access-token"
+     exit 1
+fi
 
 # step 3 : go to path
-cd "$PROJECT_PATH"
-if [ ! -d "$REPO_NAME" ] ; then
-    mkdir "$REPO_NAME" ;
-    cd "$REPO_NAME" ;
+if [ ! -d "$PROJECT_PATH" ]; then
+    mkdir "$PROJECT_PATH";
 fi
+cd "$PROJECT_PATH"
 
 
 # step 4: initialise the repo locally, create blank README, add and commit
 git init
-touch README.MD
+#touch README.MD
+echo "Initial repository setup using .sh script" >> README.MD
 git add README.MD
-git commit -m 'initial commit -setup with .sh script'
+git commit -m 'initial commit setup with repo_create.sh script'
 
 
 # step 5 use github API to log the user in
 curl -u "$USERNAME":"$GITHUB_ACCESS_TOKEN"  https://api.github.com/user/repos -d "{\"name\": \"${REPO_NAME}\", \"description\": \"${DESCRIPTION}\"}"
-#curl -u '${USERNAME}' https://api.github.com/user/repos -d '{"name":"REPO_NAME"}'
 
 #  step 6 add the remote github repo to local repo and push
-#git remote add origin https://github.com/${USERNAME}/${REPO_NAME}.git
 git remote add origin git@github.com:${USERNAME}/${REPO_NAME}.git
 git push --set-upstream origin master
 
